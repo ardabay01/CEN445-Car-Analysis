@@ -9,7 +9,7 @@ st.set_page_config(page_title="Used Car Analysis", layout="wide")
 # --- 1. VERİ ÖN İŞLEME (AKILLI SÜTUN BULUCU) ---
 @st.cache_data
 def load_data():
-    df = pd.read_csv("vehicles.csv")
+    df = pd.read_csv("vehicle.csv")
     
     # Sütun isimlerini küçük harfe çevir ve boşlukları temizle
     df.columns = df.columns.str.lower().str.strip()
@@ -156,6 +156,14 @@ with tab3:
         kmeans = KMeans(n_clusters=3, random_state=0, n_init=10)
         ml_df['cluster'] = kmeans.fit_predict(ml_df)
         ml_df['cluster'] = ml_df['cluster'].astype(str)
+        # Kümeleri isimlendirme 
+        cluster_means = ml_df.groupby('cluster')['price'].mean().sort_values()
+        cluster_map = {
+            cluster_means.index[0]: 'Economy',
+            cluster_means.index[1]: 'Mid-range',
+            cluster_means.index[2]: 'Luxury'
+        }
+        ml_df['cluster'] = ml_df['cluster'].map(cluster_map)
         
         fig_cluster = px.scatter(ml_df, x='odometer', y='price', color='cluster', 
                                  title="Car Segmentation (Clustering Analysis)",
@@ -180,3 +188,4 @@ with tab3:
 # --- FOOTER ---
 st.markdown("---")
 st.markdown("CEN445 Project - 2025 | Github Repository: [https://github.com/berfinozturk/CEN445-Car-Analysis]")
+
